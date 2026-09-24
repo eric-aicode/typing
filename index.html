@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NativeCamp 真人素材聽打系統 | English Dictation Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --nc-max-width: 1280px;
+        }
+
+        .nc-container {
+            max-width: var(--nc-max-width);
+            width: 100%;
+            margin: 0 auto;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .nc-container header,
+        .nc-container section,
+        .main-footer {
+            width: 100% !important;
+            max-width: var(--nc-max-width) !important;
+        }
+
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            width: 100%;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .nc-lesson-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .nc-lesson-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.2);
+        }
+
+        .nc-lesson-card p {
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .nc-badge-left {
+            position: absolute;
+            top: 0.75rem;
+            left: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nc-badge-right {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 800;
+            opacity: 0.6;
+        }
+
+        .nc-card-audio {
+            position: absolute;
+            bottom: 0.6rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1rem;
+            color: var(--primary);
+            opacity: 0.8;
+            filter: drop-shadow(0 0 5px rgba(99, 102, 241, 0.3));
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .status-expert {
+            background: #10b981;
+        }
+
+        .status-novice {
+            background: #6366f1;
+        }
+
+        .status-read {
+            background: #fbbf24;
+        }
+
+        .audio-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: #fbbf24;
+            margin-top: 1rem;
+        }
+
+        /* Force Layout for Practice Section */
+        #practiceSection.active {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            padding: 0.75rem 1.5rem !important;
+            overflow-y: auto !important;
+            width: 100% !important;
+        }
+
+        #practiceSection .practice-header {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            max-width: var(--nc-max-width) !important;
+            margin-bottom: 0.25rem !important;
+            padding: 0.5rem 0 !important;
+            gap: 1.5rem !important;
+            position: relative !important;
+        }
+
+        #practiceSection .practice-header h1 {
+            font-size: 1.4rem !important;
+            margin: 0 !important;
+            color: #fbbf24 !important;
+            flex-shrink: 0 !important;
+            white-space: nowrap !important;
+        }
+
+        #practiceSection .progress-container-inline {
+            flex-grow: 1 !important;
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 1.2rem !important;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 1.5rem !important;
+            border-radius: 100px !important;
+            border: 1px solid var(--glass-border);
+            margin: 0 1rem !important;
+            width: auto !important;
+            min-width: 0 !important;
+        }
+
+        #practiceSection .progress-info-inline {
+            display: flex !important;
+            align-items: center !important;
+            gap: 1rem !important;
+            font-size: 0.85rem !important;
+            flex-shrink: 0 !important;
+            white-space: nowrap !important;
+        }
+
+        #practiceSection .progress-bar-bg-inline {
+            flex-grow: 1 !important;
+            height: 6px !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-radius: 3px !important;
+            min-width: 50px !important;
+        }
+
+        #practiceSection .close-btn-mini {
+            position: relative !important;
+            top: auto !important;
+            right: auto !important;
+            flex-shrink: 0 !important;
+            margin: 0 !important;
+            white-space: nowrap !important;
+        }
+
+        #practiceSection .sentence-card {
+            width: 100% !important;
+            max-width: var(--nc-max-width) !important;
+            margin-top: 0 !important;
+        }
+
+        .main-footer {
+            margin-top: 3rem;
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .translation-display {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+            color: #fbbf24;
+            font-weight: 600;
+            text-align: center;
+            background: rgba(251, 191, 36, 0.1);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            width: 100%;
+            max-width: var(--nc-max-width);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Word Hint Styles */
+        .word-box {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            vertical-align: bottom;
+        }
+
+        .word-hint {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ef4444;
+            /* danger color */
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 2px 6px;
+            border-radius: 4px;
+            z-index: 10;
+            margin-top: 4px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .ipa-text {
+            color: #fbbf24;
+            margin-right: 8px;
+            font-family: "Lucida Sans Unicode", "Arial Unicode MS", "Gentium Plus", "Inter", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .word-input.incorrect+.word-hint {
+            opacity: 1;
+        }
+
+        /* Reader Mode Styles */
+        .reader-view {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid var(--glass-border);
+            text-align: left;
+        }
+
+        .reader-sentence {
+            display: block;
+            padding: 6px 12px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1.25rem;
+            line-height: 1.3;
+            color: var(--text-muted);
+            border: 1px solid transparent;
+        }
+
+        .reader-sentence:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .reader-sentence.active {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: var(--primary);
+            color: #fbbf24;
+            transform: scale(1.01);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+            scroll-margin-block: 50vh;
+        }
+
+        .reader-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+    </div>
+
+    <div id="homeView" class="nc-container">
+        <header>
+            <h1 style="font-size: 3rem; margin-bottom: 0.5rem;">NativeCamp <span
+                    style="color: var(--primary)">Dictation</span></h1>
+            <p class="subtitle">真人素材聽力訓練・發音強化對策</p>
+
+            <nav class="main-nav">
+                <button class="nav-btn active" onclick="app.switchView('lessons')">📚 課程庫</button>
+                <button class="nav-btn" onclick="app.switchView('wordbook')">📝 單字本</button>
+                <button class="nav-btn" onclick="app.switchView('profile')">👤 個人狀態</button>
+                <a href="typing.html" class="nav-btn" style="text-decoration: none; display: inline-flex; align-items: center;">✍️ 自訂文章</a>
+            </nav>
+        </header>
+
+        <section style="margin-top: 3rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>選擇課程開始練習</h2>
+                <div id="initSection" style="display: flex; gap: 8px;">
+                    <button id="importLibraryBtn" class="btn btn-secondary btn-sm">📁 載入教材庫</button>
+                    <button onclick="app.exportLibraryOnly()" class="btn btn-secondary btn-sm">📤 匯出教材庫</button>
+                    <input type="file" id="libraryFileInput" accept=".json" style="display: none;">
+                </div>
+            </div>
+
+            <div class="filter-bar">
+                <button class="filter-btn active" onclick="app.filterLessons('all')">All</button>
+                <button class="filter-btn" onclick="app.filterLessons('beginner')">Beginner</button>
+                <button class="filter-btn" onclick="app.filterLessons('intermediate')">Intermediate</button>
+            </div>
+
+            <div id="lessonGrid" class="lesson-grid">
+                <div class="empty-state">請先點擊上方按鈕載入 nativecamp_library.json</div>
+            </div>
+        </section>
+
+        <footer class="main-footer">
+            <p>© 2026 English Dictation Pro | NativeCamp Edition</p>
+            <p class="footer-note">Developed by <strong>Antigravity AI</strong></p>
+        </footer>
+    </div>
+
+
+    <!-- Wordbook View -->
+    <div id="wordbookView" class="nc-container" style="display: none;">
+        <header>
+            <h1 style="font-size: 2.5rem;">Vocabulary <span style="color: var(--primary)">Book</span></h1>
+            <p class="subtitle">針對錯誤強化複習</p>
+
+            <nav class="main-nav">
+                <button class="nav-btn" onclick="app.switchView('lessons')">📚 課程庫</button>
+                <button class="nav-btn active" onclick="app.switchView('wordbook')">📝 單字本</button>
+                <button class="nav-btn" onclick="app.switchView('profile')">👤 個人狀態</button>
+                <a href="typing.html" class="nav-btn" style="text-decoration: none; display: inline-flex; align-items: center;">✍️ 自訂文章</a>
+            </nav>
+        </header>
+
+        <section style="margin-top: 2rem; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2>錯題紀錄</h2>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-secondary btn-sm" onclick="app.clearMistakes()">✨ 清空全部</button>
+                </div>
+            </div>
+
+            <div id="batchActionBar" class="batch-actions-bar">
+                <span id="batchCountDisplay">已選擇 0 個單字</span>
+                <button class="btn btn-sm" onclick="app.deleteSelectedWords()"
+                    style="background: var(--danger); color: white; border: none;">🗑️ 刪除所選</button>
+            </div>
+
+            <div id="wordbookContent">
+                <!-- Mistakes will be rendered here -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Profile View -->
+    <div id="profileView" class="nc-container" style="display: none;">
+        <header>
+            <h1 style="font-size: 2.5rem;">Personal <span style="color: var(--primary)">Profile</span></h1>
+            <p class="subtitle">您的成長足跡</p>
+
+            <nav class="main-nav">
+                <button class="nav-btn" onclick="app.switchView('lessons')">📚 課程庫</button>
+                <button class="nav-btn" onclick="app.switchView('wordbook')">📝 單字本</button>
+                <button class="nav-btn active" onclick="app.switchView('profile')">👤 個人狀態</button>
+                <a href="typing.html" class="nav-btn" style="text-decoration: none; display: inline-flex; align-items: center;">✍️ 自訂文章</a>
+            </nav>
+        </header>
+
+        <section style="margin-top: 2rem; width: 100%;">
+            <div id="statsOverview" class="stats-overview">
+                <!-- Stats cards will be rendered here -->
+            </div>
+
+            <div style="margin-top: 3rem; display: flex; gap: 1rem; justify-content: center;">
+                <button class="btn btn-primary" onclick="app.exportData()">📤 匯出學習紀錄</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('importDataInput').click()">📥
+                    匯入紀錄</button>
+                <input type="file" id="importDataInput" style="display: none;" onchange="app.importData(event)">
+            </div>
+        </section>
+    </div>
+
+    <!-- Practice Section -->
+    <div id="practiceSection" class="practice-section" style="display: none;">
+        <div class="practice-header">
+            <h1 id="practiceTitle">NativeCamp Practice</h1>
+            <div class="progress-container-inline">
+                <div class="progress-info-inline">
+                    <span>進度 <span id="currentIndex">1</span>/<span id="totalCount">10</span></span>
+                    <span class="accuracy-badge">正確率：<span id="accuracyText">0%</span></span>
+                    <span id="wpmDisplay" class="wpm-badge" style="opacity: 0.5; transition: opacity 0.3s;">⚡ 0
+                        WPM</span>
+                </div>
+                <div class="progress-bar-bg-inline">
+                    <div id="progressBar" class="progress-bar-fill"></div>
+                </div>
+            </div>
+            <button id="closePracticeBtn" class="close-btn-mini">退出 ✕</button>
+        </div>
+
+        <div class="sentence-card">
+            <!-- Virtual Keyboard (Top) -->
+            <div class="virtual-keyboard" id="virtualKeyboard">
+                <div class="kb-row">
+                    <div class="key" data-key="q">Q</div>
+                    <div class="key" data-key="w">W</div>
+                    <div class="key" data-key="e">E</div>
+                    <div class="key" data-key="r">R</div>
+                    <div class="key" data-key="t">T</div>
+                    <div class="key" data-key="y">Y</div>
+                    <div class="key" data-key="u">U</div>
+                    <div class="key" data-key="i">I</div>
+                    <div class="key" data-key="o">O</div>
+                    <div class="key" data-key="p">P</div>
+                </div>
+                <div class="kb-row">
+                    <div class="key" data-key="a">A</div>
+                    <div class="key" data-key="s">S</div>
+                    <div class="key" data-key="d">D</div>
+                    <div class="key" data-key="f">F</div>
+                    <div class="key" data-key="g">G</div>
+                    <div class="key" data-key="h">H</div>
+                    <div class="key" data-key="j">J</div>
+                    <div class="key" data-key="k">K</div>
+                    <div class="key" data-key="l">L</div>
+                    <div class="key" data-key="'">'</div>
+                    <div class="key wide-key" data-key="enter">ENTER</div>
+                </div>
+                <div class="kb-row">
+                    <div class="key" data-key="z">Z</div>
+                    <div class="key" data-key="x">X</div>
+                    <div class="key" data-key="c">C</div>
+                    <div class="key" data-key="v">V</div>
+                    <div class="key" data-key="b">B</div>
+                    <div class="key" data-key="n">N</div>
+                    <div class="key" data-key="m">M</div>
+                    <div class="key" data-key=",">,</div>
+                    <div class="key" data-key=".">.</div>
+                </div>
+                <div class="kb-row">
+                    <div class="key space-key" data-key=" ">SPACE</div>
+                </div>
+            </div>
+
+            <!-- Word Container (Middle) -->
+            <div id="wordContainer" class="word-container"></div>
+
+            <!-- Reader Controls Area -->
+            <div id="readerControls" class="reader-controls"
+                style="display: none; flex-direction: column; align-items: center; gap: 1rem;">
+                <div style="display: flex; gap: 1rem;">
+                    <button id="playAllBtn" class="btn btn-primary" style="padding: 10px 30px; border-radius: 100px;">
+                        ▶️ 開始全文章朗讀
+                    </button>
+                    <button id="readingTimerBtn" class="btn btn-secondary"
+                        style="padding: 10px 30px; border-radius: 100px; background: #10b981; border: none; color: white;">
+                        ⏱️ 自我朗讀挑戰
+                    </button>
+                    <button id="recordBtn" class="btn btn-secondary"
+                        style="padding: 10px 30px; border-radius: 100px; background: #ef4444; border: none; color: white;">
+                        🎙️ 錄音
+                    </button>
+                    <button id="correctTextBtn" class="btn btn-secondary"
+                        style="padding: 10px 30px; border-radius: 100px; background: #6366f1; border: none; color: white;">
+                        ✏️ 全文修正
+                    </button>
+                    <audio id="userAudioPlayer" controls
+                        style="display: none; height: 40px; border-radius: 20px;"></audio>
+                </div>
+                <div id="timerDisplay"
+                    style="font-size: 2rem; font-weight: 800; color: #fbbf24; display: none; font-family: 'Inter', monospace;">
+                    00:00.00
+                </div>
+            </div>
+
+            <div id="readerView" class="reader-view" style="display: none;"></div>
+
+            <!-- Translation & Controls (Bottom) -->
+            <div id="translationDisplay" class="translation-display" style="display: none;"></div>
+            <div id="originalSentenceDisplay" class="original-sentence-display"></div>
+
+            <div class="status-bar">
+                <div class="status-item">
+                    <label for="learningMode">模式：</label>
+                    <select id="learningMode" class="btn btn-secondary btn-sm"
+                        style="background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white; padding: 2px 10px;">
+                        <option value="novice" style="color: #333;">新手</option>
+                        <option value="trainee" style="color: #333;">學徒</option>
+                        <option value="expert" style="color: #333;">專家</option>
+                        <option value="reader" selected style="color: #333;">朗讀模式</option>
+                    </select>
+                </div>
+                <div class="status-item">
+                    <label for="playbackSpeed">速度：</label>
+                    <select id="playbackSpeed" class="btn btn-secondary btn-sm"
+                        style="background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white; padding: 2px 10px;">
+                        <option value="0.5" style="color: #333;">0.5x</option>
+                        <option value="0.7" style="color: #333;">0.7x</option>
+                        <option value="0.8" style="color: #333;">0.8x</option>
+                        <option value="0.9" style="color: #333;">0.9x</option>
+                        <option value="1.0" selected style="color: #333;">1.0x</option>
+                        <option value="1.2" style="color: #333;">1.2x</option>
+                        <option value="1.5" style="color: #333;">1.5x</option>
+                        <option value="1.7" style="color: #333;">1.7x</option>
+                        <option value="2.0" style="color: #333;">2.0x</option>
+                    </select>
+                </div>
+                <div class="status-divider"></div>
+                <div class="status-item"><span>🔊</span> <kbd>L-Ctrl</kbd></div>
+                <div class="status-item"><span>👁️</span> <kbd>R-Ctrl</kbd></div>
+                <div class="status-item"><span>速度</span> <kbd>[</kbd> <kbd>]</kbd></div>
+                <div class="status-item"><span>⏭️</span> <kbd>Esc</kbd></div>
+            </div>
+
+            <footer class="practice-footer">
+                Powered by NativeCamp Audio Resources
+            </footer>
+        </div>
+    </div>
+
+    <audio id="sentenceAudio"></audio>
+
+    <!-- Full Text Correction Modal -->
+    <div id="correctionModal" class="modal"
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div
+            style="background: var(--surface); width: 90%; max-width: 800px; border-radius: 20px; padding: 2rem; border: 1px solid var(--glass-border);">
+            <h2 style="margin-bottom: 1rem;">修正原文內容</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">修改下方的文字內容，點擊保存後將會更新目前的課程內容。</p>
+            <textarea id="correctionInput"
+                style="width: 100%; height: 400px; background: rgba(15, 23, 42, 0.5); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1.25rem; color: var(--text); font-size: 1.1rem; line-height: 1.7; resize: vertical; outline: none; transition: border-color 0.3s; margin-top: 1rem; margin-bottom: 1.5rem;"></textarea>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="app.closeCorrectionModal()">取消</button>
+                <button class="btn btn-primary" onclick="app.saveFullCorrection()">保存修正</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="nativecamp_script.js"></script>
+</body>
+
+</html>

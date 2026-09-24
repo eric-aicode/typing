@@ -1,0 +1,21 @@
+# Personal / backup files
+_personal_backup/
+*.pptx
+*.ppt
+
+# Agent & IDE files
+.agent/
+.vscode/
+.idea/
+
+# Python cache & virtual environment
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini

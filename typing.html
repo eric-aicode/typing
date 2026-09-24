@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 英文聽打練習系統 | English Dictation Pro</title>
+    <meta name="description" content="專業的 AI 英文聽打練習工具，提升你的聽力與打字速度。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+
+<body>
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+    </div>
+
+    <div class="container">
+        <script>
+            // These variables are likely intended for the script.js file or a script block.
+            // Placing them directly here makes them global variables accessible within the HTML context.
+            // If they are meant to be part of a class or object, they should be moved to script.js.
+            var currentIndex = 0;
+            var currentWords = [];
+            var correctCount = 0;
+            var totalSentencesAttempts = 0;
+        </script>
+        <header>
+            <h1>English Dictation Pro</h1>
+            <p class="subtitle">提升聽覺反射，打出過人聽力</p>
+            <nav class="main-nav">
+                <a href="index.html" class="nav-btn" style="text-decoration: none; display: inline-flex; align-items: center;">🎧 官方課程庫</a>
+                <button class="nav-btn active" data-target="homeSection">🏠 首頁</button>
+                <button class="nav-btn" data-target="setupSection">📝 新增練習</button>
+                <button class="nav-btn" data-target="librarySection">📚 文章題庫</button>
+                <button class="nav-btn" data-target="statsSection">📊 統計紀錄</button>
+                <button class="nav-btn" data-target="profileSection">👤 個人檔案</button>
+            </nav>
+        </header>
+
+        <main class="card">
+            <!-- Home Section -->
+            <div id="homeSection" class="home-section active-section">
+                <div class="home-hero">
+                    <h2>歡迎回來，準備好練習了嗎？</h2>
+                    <p>選擇一個功能開始你的英語聽力與打字訓練。</p>
+                </div>
+
+                <div class="home-grid">
+                    <div class="home-card" onclick="document.querySelector('[data-target=\'setupSection\']').click()">
+                        <div class="home-card-icon">✍️</div>
+                        <h3>新增練習</h3>
+                        <p>貼上自己的文章立即開始</p>
+                    </div>
+                    <div class="home-card" onclick="document.querySelector('[data-target=\'librarySection\']').click()">
+                        <div class="home-card-icon">📚</div>
+                        <h3>文章題庫</h3>
+                        <p>從已儲存的文章中挑選</p>
+                    </div>
+                    <div class="home-card" onclick="document.querySelector('[data-target=\'statsSection\']').click()">
+                        <div class="home-card-icon">📈</div>
+                        <h3>統計紀錄</h3>
+                        <p>查看你的進步與弱點</p>
+                    </div>
+                    <div class="home-card" onclick="document.querySelector('[data-target=\'profileSection\']').click()">
+                        <div class="home-card-icon">🏆</div>
+                        <h3>成就系統</h3>
+                        <p>等級與 XP 同步追蹤</p>
+                    </div>
+                </div>
+
+                <div class="recent-articles">
+                    <h3>快速開始（最近的文章）</h3>
+                    <div id="quickStartList" class="quick-start-list">
+                        <!-- Recently used/saved articles will be injected here -->
+                    </div>
+                </div>
+            </div>
+            <!-- Initial State: Text Input -->
+            <div id="setupSection" class="setup-section">
+                <div class="input-group-vertical">
+                    <input type="text" id="articleTitle" placeholder="文章標題 (選填，用於存檔)..." class="title-input">
+                    <textarea id="articleText" placeholder="在此貼上你的英文文章、對話或練習內容..."></textarea>
+                </div>
+                <div class="input-actions">
+                    <button id="startBtn" class="btn btn-primary">
+                        <span>🚀 開始解析練習</span>
+                    </button>
+                    <button id="saveBtn" class="btn btn-secondary">
+                        <span>💾 存入題庫</span>
+                    </button>
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="shuffleCheckbox" checked>
+                        <label for="shuffleCheckbox">🎲 隨機順序</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Library Section -->
+            <div id="librarySection" class="library-section" style="display: none;">
+                <div id="articleList" class="article-list">
+                    <!-- Saved articles will appear here -->
+                    <div class="empty-state">尚未儲存任何文章</div>
+                </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div id="statsSection" class="stats-section" style="display: none;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>❌ 常錯單字 (Top 10)</h3>
+                        <ul id="mistakeList" class="stat-list"></ul>
+                    </div>
+                    <div class="stat-card">
+                        <h3>🏳️ 放棄句子紀錄</h3>
+                        <div id="skippedList" class="stat-list scrollable"></div>
+                    </div>
+                </div>
+                <button id="clearStatsBtn" class="btn btn-danger" style="margin-top: 1rem;">🗑️ 清除所有統計</button>
+            </div>
+
+            <!-- Profile Section -->
+            <div id="profileSection" class="profile-section" style="display: none;">
+                <!-- Level & XP -->
+                <div class="profile-header-card">
+                    <div class="level-badge" id="levelBadge">Lv. 1</div>
+                    <div class="level-info">
+                        <h2 id="levelTitle">新手聽打員</h2>
+                        <div class="xp-bar-container">
+                            <div class="xp-bar-fill" id="xpBar" style="width: 0%"></div>
+                            <span class="xp-text"><span id="currentXP">0</span> / <span id="nextLevelXP">1000</span>
+                                XP</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lifetime Stats -->
+                <div class="stats-grid" style="margin-top: 2rem;">
+                    <div class="stat-card">
+                        <h3>📈 學習數據</h3>
+                        <div class="stat-item">
+                            <span>🔥 連續天數</span>
+                            <span id="streakCount" class="stat-value">0 天</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>⌨️ 總打字數</span>
+                            <span id="totalWordsTyped" class="stat-value">0 字</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>⏱️ 總練習時間</span>
+                            <span id="totalStudyTime" class="stat-value">0 分鐘</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>💾 資料管理</h3>
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">
+                            備份您的所有練習紀錄與題庫，或從備份檔還原。
+                        </p>
+                        <div class="input-actions" style="justify-content: flex-start;">
+                            <button id="backupBtn" class="btn btn-primary">
+                                <span>📤 匯出備份 (JSON)</span>
+                            </button>
+                            <button id="restoreBtn" class="btn btn-secondary">
+                                <span>📥 匯入還原</span>
+                            </button>
+                            <input type="file" id="restoreInput" accept=".json" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Practice State (Independent View) -->
+    <div id="practiceSection" class="practice-section" style="display: none;">
+        <div class="practice-header">
+            <h1>English Dictation Pro</h1>
+            <div class="progress-container-inline">
+                <div class="progress-info-inline">
+                    <span>進度 <span id="currentIndex">1</span>/<span id="totalCount">10</span></span>
+                    <span class="accuracy-badge">正確率：<span id="accuracyText">0%</span></span>
+                    <span id="wpmDisplay" class="wpm-badge" style="opacity: 0.5; transition: opacity 0.3s;">⚡ 0
+                        WPM</span>
+                </div>
+                <div class="progress-bar-bg-inline">
+                    <div id="progressBar" class="progress-bar-fill"></div>
+                </div>
+            </div>
+            <button id="closePracticeBtn" class="close-btn-mini" title="返回主頁">退出 ✕</button>
+        </div>
+
+        <div class="sentence-card">
+            <!-- Virtual Keyboard (Now at top) -->
+            <div class="virtual-keyboard" id="virtualKeyboard">
+                <div class="kb-row">
+                    <div class="key" data-key="q">Q</div>
+                    <div class="key" data-key="w">W</div>
+                    <div class="key" data-key="e">E</div>
+                    <div class="key" data-key="r">R</div>
+                    <div class="key" data-key="t">T</div>
+                    <div class="key" data-key="y">Y</div>
+                    <div class="key" data-key="u">U</div>
+                    <div class="key" data-key="i">I</div>
+                    <div class="key" data-key="o">O</div>
+                    <div class="key" data-key="p">P</div>
+                </div>
+                <div class="kb-row">
+                    <div class="key" data-key="a">A</div>
+                    <div class="key" data-key="s">S</div>
+                    <div class="key" data-key="d">D</div>
+                    <div class="key" data-key="f">F</div>
+                    <div class="key" data-key="g">G</div>
+                    <div class="key" data-key="h">H</div>
+                    <div class="key" data-key="j">J</div>
+                    <div class="key" data-key="k">K</div>
+                    <div class="key" data-key="l">L</div>
+                    <div class="key" data-key="'">'</div>
+                    <div class="key wide-key" data-key="enter">ENTER</div>
+                </div>
+                <div class="kb-row">
+                    <div class="key" data-key="z">Z</div>
+                    <div class="key" data-key="x">X</div>
+                    <div class="key" data-key="c">C</div>
+                    <div class="key" data-key="v">V</div>
+                    <div class="key" data-key="b">B</div>
+                    <div class="key" data-key="n">N</div>
+                    <div class="key" data-key="m">M</div>
+                    <div class="key" data-key=",">,</div>
+                    <div class="key" data-key=".">.</div>
+                </div>
+                <div class="kb-row">
+                    <div class="key space-key" data-key=" ">SPACE</div>
+                </div>
+            </div>
+
+            <div id="wordContainer" class="word-container">
+                <!-- Words will be injected here -->
+            </div>
+
+            <div id="originalSentenceDisplay" class="original-sentence-display">
+                <!-- Full sentence revealed here -->
+            </div>
+
+            <div class="controls" style="display: none;">
+                <button id="giveUpBtn" class="btn btn-secondary">
+                    <span>🏳️ 放棄作答 (顯示答案) <kbd>Esc</kbd></span>
+                </button>
+            </div>
+
+            <div class="status-bar">
+                <div class="status-item"><span>🔊</span> <kbd>Ctrl</kbd></div>
+                <div class="status-item"><span>⏭️</span> <kbd>Esc</kbd></div>
+                <div class="status-divider"></div>
+                <div class="status-item">
+                    <span>🐢 <span id="speedValue">1.0</span>x</span>
+                    <kbd>[</kbd> <kbd>]</kbd>
+                    <input type="range" id="speedRange" min="0.5" max="1.5" step="0.1" value="1.0"
+                        style="display:none;">
+                </div>
+                <div class="status-item">
+                    <div id="voiceChips" class="voice-chips"></div>
+                    <kbd>F2</kbd>
+                </div>
+            </div>
+
+            <div class="setting-item" style="display: none;">
+                <input type="checkbox" id="toggleHint">
+            </div>
+
+            <footer class="practice-footer">
+                Developed by Antigravity AI
+            </footer>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <p>© 2026 English Dictation Pro | Developed by <strong>Antigravity AI</strong></p>
+        <p class="footer-note">專業級 AI 英文聽覺反射訓練系統</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,58 @@
+{
+    "articles": [
+        {
+            "id": 1002,
+            "title": "第二組：時間與天氣",
+            "content": "What time is it right now?\n\nIt is ten thirty in the morning.\n\nThe weather is very sunny and hot today.\n\nI think it is going to rain this afternoon.\n\nMy favorite season is winter because of the snow.\n\nWe usually have dinner at seven o'clock.\n\nDon't forget to bring your umbrella.\n\nYesterday was a very cold and windy day.\n\nThe train will arrive in fifteen minutes.\n\nIs it Monday or Tuesday today?",
+            "date": "2024/02/09"
+        },
+        {
+            "id": 1003,
+            "title": "第三組：飲食與餐廳",
+            "content": "Are you ready to order your food?\n\nI would like a cup of hot coffee, please.\n\nThis cake tastes very sweet and delicious.\n\nDo you prefer tea or fruit juice?\n\nI am a vegetarian, so I don't eat meat.\n\nCan I have the menu one more time?\n\nWe need a table for four people tonight.\n\nWhere is the nearest Italian restaurant?\n\nI am very hungry and want to eat pizza.\n\nThe check, please. I want to pay now.",
+            "date": "2024/02/09"
+        },
+        {
+            "id": 1004,
+            "title": "第四組：購物與價格",
+            "content": "How much does this blue shirt cost?\n\nIt is twenty dollars after the discount.\n\nDo you have this dress in a smaller size?\n\nI am just looking around the store.\n\nCan I pay with my credit card?\n\nThis supermarket is open twenty-four hours.\n\nWhere can I find the milk and eggs?\n\nI want to buy a birthday gift for my mom.\n\nIs there a pharmacy near the shopping mall?\n\nThat is too expensive for me to buy.",
+            "date": "2024/02/09"
+        },
+        {
+            "id": 1005,
+            "title": "第五組：休閒與運動",
+            "content": "I like playing basketball with my friends.\n\nWhat is your favorite movie genre?\n\nShe enjoys listening to pop music every night.\n\nDo you want to go swimming tomorrow?\n\nI went to the cinema to see an action movie.\n\nHe plays the guitar very well.\n\nLet's go for a walk in the park.\n\nI love reading books before I go to sleep.\n\nMy hobby is taking beautiful photos.\n\nDo you watch television on the weekend?",
+            "date": "2024/02/09"
+        },
+        {
+            "id": 1006,
+            "title": "第六組：交通與方向",
+            "content": "Go straight and turn left at the corner.\n\nThe bus station is across from the bank.\n\nHow do I get to the library from here?\n\nIt takes about ten minutes to walk there.\n\nI usually take the subway to go to work.\n\nIs the post office far from this hotel?\n\nExcuse me, is this the right way to the airport?\n\nPlease drive slowly; the road is wet.\n\nI missed the last bus home last night.\n\nYou can see the museum on your right side.",
+            "date": "2024/02/09"
+        },
+        {
+            "id": 1007,
+            "title": "第七組：工作與辦公室",
+            "content": "I have a very important meeting at two PM.\n\nPlease send me an email with the report.\n\nWhere did you put the blue folder?\n\nMy boss is very kind and helpful to everyone.\n\nI need to print five copies of this document.\n\nWhat is your job title at the company?\n\nI am looking for a new job these days.\n\nHe works in the marketing department.\n\nCan you help me fix the computer?\n\nWe have a coffee break at three o'clock.",
+            "date": "2024/02/09"
+        },
+        {
+            "id": 1008,
+            "title": "第八組：家庭與居所",
+            "content": "My house has three bedrooms and a kitchen.\n\nPlease close the door when you leave.\n\nI need to clean my room this Saturday.\n\nThere is a large garden behind our house.\n\nWho is the person in this old photo?\n\nI forgot my keys on the dining table.\n\nMy parents live in a quiet country town.\n\nCan you help me wash the dishes?\n\nThe living room is very bright and tidy.\n\nWe are moving to a new house next month.",
+            "date": "2024/02/09"
+        },
+        {
+            "id": 1009,
+            "title": "第九組：健康與感受",
+            "content": "I feel a bit tired after the long trip.\n\nYou should go to see a doctor today.\n\nI have a headache and a sore throat.\n\nDrink more water and get some rest.\n\nI am very happy to hear the good news.\n\nWhy do you look so sad this morning?\n\nAre you feeling better than you were yesterday?\n\nI exercise every morning to stay healthy.\n\nDon't worry, everything will be fine.\n\nIt is important to sleep eight hours a night.",
+            "date": "2024/02/09"
+        },
+        {
+            "id": 1010,
+            "title": "第十組：旅遊與度假",
+            "content": "I am planning a trip to Japan this summer.\n\nWhere is your passport and your ticket?\n\nI want to stay in a hotel near the beach.\n\nWe took many photos during our vacation.\n\nDid you book the flight for next Friday?\n\nThe mountain view is absolutely beautiful.\n\nI like to visit historical museums.\n\nPack your suitcase tonight before you sleep.\n\nWhat is the most famous place in this city?\n\nI hope you have a safe and pleasant journey.",
+            "date": "2024/02/09"
+        }
+    ]
+}
