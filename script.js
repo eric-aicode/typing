@@ -50,7 +50,24 @@ class DictationApp {
         this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         this.init();
+        this.checkDefaultArticles();
         this.renderHome(); // Add this
+    }
+
+    checkDefaultArticles() {
+        const existing = localStorage.getItem('dictation_articles');
+        if (!existing || JSON.parse(existing).length === 0) {
+            fetch('./import_articles.json')
+                .then(r => r.json())
+                .then(data => {
+                    const articles = Array.isArray(data) ? data : (data.articles || []);
+                    if (articles && articles.length > 0) {
+                        this.setStorage('dictation_articles', articles);
+                        this.renderHome();
+                    }
+                })
+                .catch(e => console.log('Auto-fetch default articles bypassed:', e));
+        }
     }
 
     playTypingSound() {
